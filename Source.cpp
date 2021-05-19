@@ -1,14 +1,7 @@
-// A simple CPP program to introduce
-// a linked list
 #include <iostream>
 using namespace std;
 
-class Node {
-public:
-	int data;
-	Node* next;
-};
-
+//cu ajutorul clasei asteia se creeaza lista inlantuita pentru fiecare proces in parte
 class segmentMemorie {
 public:
 	string indentificator_tip;
@@ -18,45 +11,61 @@ public:
 	segmentMemorie* next;
 };
 
-// Function to allocate memory to 
-// blocks as per First fit algorithm
-void firstFit(int blockSize[], int m, int processSize[], int n)
-{
-    // Stores block id of the 
-    // block allocated to a process
+//functie care aloca loc in memorie fiecarui proces cu ajutorul algoritmului First fit
+void firstFit(int blockSize, int m, int processSize[], int n, string identificatori[]){
+    //pastreaza id-ul proceselor
     int allocation[10];
 
-    // Initially no block is assigned to any process
+	//populez allocation cu -1 (o sa ma ajute sa afisez care intrari au fost alocate si care nu)
     memset(allocation, -1, sizeof(allocation));
 
-    // pick each process and find suitable blocks
-    // according to its size ad assign to it
+	int isprocess[10];
+	memset(isprocess, -1, sizeof(isprocess));
+
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < m; j++)
         {
-            if (blockSize[j] >= processSize[i])
-            {
-                // allocate block j to p[i] process
-                allocation[i] = j;
+			string x = "P";
+			//daca intrarea este un proces, atunci incercam sa o adaugam in blocul de memorie
+			if (identificatori[i] == x) {
+				if (blockSize >= processSize[i])
+				{
+					allocation[i] = i;
 
-                // Reduce available memory in this block.
-                blockSize[j] -= processSize[i];
+					//redu memoria libera din blocul de memorie
+					blockSize = blockSize - processSize[i];
 
-                break;
-            }
+					isprocess[i] = i;
+
+					break;
+				}
+				else {
+					isprocess[i] = i;
+				}
+			}
+			else {
+				break;
+			}
         }
     }
 
-    cout << "\nProcess No.\tProcess Size\tBlock no.\n";
+    cout << "\nIntrarea Nr.\tMarime intrare\tProces\t\tBlocul de memorie\n";
     for (int i = 0; i < n; i++)
     {
-        cout << " " << i + 1 << "\t\t"
-            << processSize[i] << "\t\t";
-        if (allocation[i] != -1)
-            cout << allocation[i] + 1;
-        else
-            cout << "Not Allocated";
+        cout << " " << i + 1 << "\t\t"<< processSize[i] << "\t\t";
+		if (isprocess[i] != -1) {
+			cout << "Da" << "\t\t";
+		}
+		else {
+			cout << "Nu" << "\t\t";
+		}
+		if (allocation[i] != -1) {
+			cout << "Alocat";
+		}
+		else {
+			cout << "Nu a fost alocat";
+		}
         cout << endl;
     }
 }
@@ -66,37 +75,64 @@ int main()
 	segmentMemorie* head = NULL;
 	segmentMemorie* second = NULL;
 	segmentMemorie* third = NULL;
+	segmentMemorie* fourth = NULL;
+	segmentMemorie* fifth = NULL;
 
-	// allocate 3 nodes in the heap
+	//aplicatia noastra va aloca memorie pentru 5 intrari
 	head = new segmentMemorie();
 	second = new segmentMemorie();
 	third = new segmentMemorie();
+	fourth = new segmentMemorie();
+	fifth = new segmentMemorie();
 
-	head->indentificator_tip = "P";
+	//intrarea 1
+	head->indentificator_tip = "H";
 	head->adresa_inceput = 1;
-	head->dimensiune = 150;
+	head->dimensiune = 200;
 	// Link first node with
 	head->next = second;
 
-	second->indentificator_tip = "H";
+	//intrarea 2
+	second->indentificator_tip = "P";
 	second->adresa_inceput = 4;
-	second->dimensiune = 220;
+	second->dimensiune = 100;
 	// Link second node with the third node
 	second->next = third;
 
+	//intrarea 3
 	third->indentificator_tip = "H";
-	third->adresa_inceput = 4;
+	third->adresa_inceput = 5;
 	third->dimensiune = 400;
 	// marcheaza nodul 3 ca ultimul nod
-	third->next = NULL;
+	third->next = fourth;
 
-    int blockSize[] = { 600 };
-    int processSize[] = { head->dimensiune, second->dimensiune, third->dimensiune };
+	//intrarea 4
+	fourth->indentificator_tip = "P";
+	fourth->adresa_inceput = 6;
+	fourth->dimensiune = 250;
+	// marcheaza nodul 3 ca ultimul nod
+	fourth->next = fifth;
 
-    int m = sizeof(blockSize) / sizeof(blockSize[0]);
+	//intrarea 5
+	fifth->indentificator_tip = "P";
+	fifth->adresa_inceput = 9;
+	fifth->dimensiune = 200;
+	// marcheaza nodul 3 ca ultimul nod
+	fifth->next = NULL;
+
+	//marimea blocului de memorie
+    int blockSize = 1000;
+	//in acest array retinem dimensiunea fiecarei intrari (cat loc ar ocupa ea in blocul de memorie)
+    int processSize[] = { head->dimensiune, second->dimensiune, third->dimensiune, fourth->dimensiune, fifth->dimensiune };
+	//aici se retin tipul de identificator al fiecarei intrari (daca este proces sau spatiu - spatiile nu se adauga in bloc)
+	string indentificatori[] = { head->indentificator_tip , second->indentificator_tip , third->indentificator_tip , fourth->indentificator_tip , fifth->indentificator_tip };
+
+    int m = 1;
+	//cate intrari sunt in lista
     int n = sizeof(processSize) / sizeof(processSize[0]);
 
-    firstFit(blockSize, m, processSize, n);
+	//apelam functia firstFit
+    firstFit(blockSize, m, processSize, n, indentificatori);
 
 	return 0;
 }
